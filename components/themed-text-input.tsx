@@ -6,34 +6,40 @@ import { useThemeColor } from '@/hooks/use-theme-color';
 export type ThemedTextProps = TextProps & {
   lightColor?: string;
   darkColor?: string;
-  type?: 'default' | 'title' | 'smallTitle' | 'defaultSemiBold' | 'subtitle' | 'link' | 'text_input';
-  href?: Href;
+  type?: 'text_input';
   placeholder?: string;
   secureTextEntry?: boolean;
+  value?: string;
+  onChangeText?: (text: string) => void;
 };
 
-export function ThemedText({
+export function ThemedTextInput({
   style,
   lightColor,
   darkColor,
-  type = 'default',
-  href = "/#",
+  type = 'text_input',
+  placeholder = '',
+  secureTextEntry = false,
+  value,
+  onChangeText,
   ...rest
 }: ThemedTextProps) {
   const color = useThemeColor({ light: lightColor, dark: darkColor }, 'text');
 
   return ( 
-    type === 'link' ? (
-      <Link 
-        href={href}
+    type=='text_input' ? (
+    <TextInput 
+        placeholder={placeholder}
+        secureTextEntry={secureTextEntry}
+        value={value}
+        onChangeText={onChangeText}
         style={[
           { color }, 
-          styles.link, 
+          styles.textEntry, 
           style
         ]} >
           {rest.children}
-        </Link>
-    ) : (
+        </TextInput>) : (
     <Text
       style={[
         { color },
