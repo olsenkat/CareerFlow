@@ -1,12 +1,14 @@
 import { Image } from 'expo-image';
 import { Modal, StyleSheet, TouchableOpacity } from 'react-native';
 import { useState } from 'react';
+import { router } from 'expo-router';
 
 import ParallaxScrollView from '@/components/parallax-scroll-view';
 import { ThemedText } from '@/components/themed-text';
 import { ThemedView } from '@/components/themed-view';
 import { Link } from 'expo-router';
 import { ThemedTextInput } from '@/components/themed-text-input';
+import { supabase } from '@/src/lib/supabase';
 
 export default function RegisterScreen() {
   const [firstName, setFirstName] = useState('');
@@ -18,7 +20,7 @@ export default function RegisterScreen() {
   const [error, setError] = useState('');
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     // Implement registration logic here, such as form validation and API calls
     setError(''); // Clear any previous errors
     console.log({ firstName, email, password, confirmPassword });
@@ -36,6 +38,36 @@ export default function RegisterScreen() {
     }
 
     console.log('Registering user:', { email, password, confirmPassword });
+
+    const {data, error} = await supabase.auth.signUp({email, password});
+
+    if (error) {
+      setIsModalVisible(true);
+      setError(error.message);
+      return;
+    }
+
+    // const userId = data.user?.id;
+
+    // if (!userId) return;
+
+    // // Insert profile data
+    // const {error: profileError} = await supabase
+    //   .from('profiles')
+    //   .insert({
+    //     id: userId,
+    //     first_name: firstName,
+    //     email: email,
+    //   });
+
+    // if (profileError) {
+    //   setIsModalVisible(true);
+    //   setError(profileError.message);
+    //   return;
+    // }
+
+    console.log('User registered successfully:', data);
+
     // Reset form fields after successful registration
     setFirstName('');
     // setLastName('');
@@ -43,6 +75,10 @@ export default function RegisterScreen() {
     // setUsername('');
     setPassword('');
     setConfirmPassword('');
+
+    if(data.session) {
+      router.replace('/(tabs)');
+    } 
   }
 
   return (
@@ -50,7 +86,7 @@ export default function RegisterScreen() {
       headerBackgroundColor={{ light: '#dca1c7', dark: '#2b0e2a' }}
       headerImage={
         <Image
-          source={require('@/assets/images/partial-react-logo.png')}
+          source={require('@/assets/images/icon-job-search.png')}
           style={styles.reactLogo}
         />
       }>
@@ -118,10 +154,11 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   reactLogo: {
-    height: 178,
-    width: 290,
+    height: 200,
+    width: 200,
     bottom: 0,
-    left: 0,
+    left: 90,
+    color: '#616caa',
     position: 'absolute',
   },
   textInput: {
